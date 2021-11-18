@@ -69,6 +69,9 @@ export class LRUMap<K,V> {
   // Call `fun` for each entry, starting with the oldest entry.
   forEach(fun :(value :V, key :K, m :LRUMap<K,V>)=>void, thisArg? :any) : void;
 
+  // Call `fun` for each entry, starting with the oldest entry. If `fun` returns a falsy value, exit the loop
+  forEachWithBreak(fun :(value :V, key :K, m :LRUMap<K,V>)=>void) : number;
+
   // Returns an object suitable for JSON encoding
   toJSON() : Array<{key :K, value :V}>;
 

@@ -269,6 +269,19 @@ set() {
   assert(kit.next().done);
 },
 
+forEachWithBreak() {
+  c = new LRUMap(4);
+  c.set('a', 1);
+  c.set('b', 1);
+  c.set('c', 0);
+  c.set('d', 0);
+
+  const fun = (value) => value === 1 ;
+
+  const targetNbElements = c.forEachWithBreak(fun);
+
+  asserteq(targetNbElements, 2);
+},
 
 toJSON() {
   let c = new LRUMap(4, [

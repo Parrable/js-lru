@@ -235,6 +235,19 @@ class LRUMap {
     }
   }
 
+  forEachWithBreak(fun) {
+    let entry = this.oldest;
+    let removedElements = 0;
+    while (entry) {
+      if (!fun.call(this, entry.value, entry.key, this)) {
+        break;
+      }
+      entry = entry[NEWER];
+      removedElements++;
+    }
+    return removedElements;
+  }
+
   /** Returns a JSON (array) representation */
   toJSON() {
     var s = new Array(this.size), i = 0, entry = this.oldest;
