@@ -1,2 +1,253 @@
-!function(g,c){typeof exports=="object"&&typeof module!="undefined"?c(exports):typeof define=="function"&&define.amd?define(["exports"],c):c((g=g||self).lru_map=g.lru_map||{})}(this,function(g){const c=Symbol("newer"),e=Symbol("older");class n{constructor(a,b){typeof a!=="number"&&(b=a,a=0),this.size=0,this.limit=a,this.oldest=this.newest=void 0,this._keymap=new Map(),b&&(this.assign(b),a<1&&(this.limit=this.size))}_markEntryAsUsed(a){if(a===this.newest)return;a[c]&&(a===this.oldest&&(this.oldest=a[c]),a[c][e]=a[e]),a[e]&&(a[e][c]=a[c]),a[c]=void 0,a[e]=this.newest,this.newest&&(this.newest[c]=a),this.newest=a}assign(a){let b,d=this.limit||Number.MAX_VALUE;this._keymap.clear();let m=a[Symbol.iterator]();for(let h=m.next();!h.done;h=m.next()){let f=new l(h.value[0],h.value[1]);this._keymap.set(f.key,f),b?(b[c]=f,f[e]=b):this.oldest=f,b=f;if(d--==0)throw new Error("overflow")}this.newest=b,this.size=this._keymap.size}get(a){var b=this._keymap.get(a);return b?(this._markEntryAsUsed(b),b.value):void 0}set(a,b){var d=this._keymap.get(a);return d?(d.value=b,this._markEntryAsUsed(d),this):(this._keymap.set(a,d=new l(a,b)),this.newest?(this.newest[c]=d,d[e]=this.newest):this.oldest=d,this.newest=d,++this.size,this.size>this.limit&&this.shift(),this)}shift(){var a=this.oldest;if(a)return this.oldest[c]?(this.oldest=this.oldest[c],this.oldest[e]=void 0):(this.oldest=void 0,this.newest=void 0),a[c]=a[e]=void 0,this._keymap.delete(a.key),--this.size,[a.key,a.value]}find(a){let b=this._keymap.get(a);return b?b.value:void 0}has(a){return this._keymap.has(a)}delete(a){var b=this._keymap.get(a);return b?(this._keymap.delete(b.key),b[c]&&b[e]?(b[e][c]=b[c],b[c][e]=b[e]):b[c]?(b[c][e]=void 0,this.oldest=b[c]):b[e]?(b[e][c]=void 0,this.newest=b[e]):this.oldest=this.newest=void 0,this.size--,b.value):void 0}clear(){this.oldest=this.newest=void 0,this.size=0,this._keymap.clear()}keys(){return new j(this.oldest)}values(){return new k(this.oldest)}entries(){return this}[Symbol.iterator](){return new i(this.oldest)}forEach(a,b){typeof b!=="object"&&(b=this);let d=this.oldest;for(;d;)a.call(b,d.value,d.key,this),d=d[c]}forEachWithBreak(a){let b=this.oldest,d=0;for(;b;){if(!a.call(this,b.value,b.key,this))break;b=this.oldest,d++}return d}toJSON(){for(var a=new Array(this.size),b=0,d=this.oldest;d;)a[b++]={key:d.key,value:d.value},d=d[c];return a}toString(){for(var a="",b=this.oldest;b;)a+=String(b.key)+":"+b.value,b=b[c],b&&(a+=" < ");return a}}g.LRUMap=n;function l(a,b){this.key=a,this.value=b,this[c]=void 0,this[e]=void 0}function i(a){this.entry=a}i.prototype[Symbol.iterator]=function(){return this},i.prototype.next=function(){let a=this.entry;return a?(this.entry=a[c],{done:!1,value:[a.key,a.value]}):{done:!0,value:void 0}};function j(a){this.entry=a}j.prototype[Symbol.iterator]=function(){return this},j.prototype.next=function(){let a=this.entry;return a?(this.entry=a[c],{done:!1,value:a.key}):{done:!0,value:void 0}};function k(a){this.entry=a}k.prototype[Symbol.iterator]=function(){return this},k.prototype.next=function(){let a=this.entry;return a?(this.entry=a[c],{done:!1,value:a.value}):{done:!0,value:void 0}}});
+!function(g, f) {
+  if (typeof exports == "object" && typeof module != "undefined") {
+    f(exports);
+  } else if (typeof define == "function" && define.amd) {
+    define(["exports"], f);
+  } else {
+    f((g = g || self)["lru_map"] = g["lru_map"] || {});
+  }
+}(this, function(exports2) {
+  const NEWER = Symbol("newer");
+  const OLDER = Symbol("older");
+  class LRUMap {
+    constructor(limit, entries) {
+      if (typeof limit !== "number") {
+        entries = limit;
+        limit = 0;
+      }
+      this.size = 0;
+      this.limit = limit;
+      this.oldest = this.newest = void 0;
+      this._keymap = new Map();
+      if (entries) {
+        this.assign(entries);
+        if (limit < 1) {
+          this.limit = this.size;
+        }
+      }
+    }
+    _markEntryAsUsed(entry) {
+      if (entry === this.newest) {
+        return;
+      }
+      if (entry[NEWER]) {
+        if (entry === this.oldest) {
+          this.oldest = entry[NEWER];
+        }
+        entry[NEWER][OLDER] = entry[OLDER];
+      }
+      if (entry[OLDER]) {
+        entry[OLDER][NEWER] = entry[NEWER];
+      }
+      entry[NEWER] = void 0;
+      entry[OLDER] = this.newest;
+      if (this.newest) {
+        this.newest[NEWER] = entry;
+      }
+      this.newest = entry;
+    }
+    assign(entries) {
+      let entry, limit = this.limit || Number.MAX_VALUE;
+      this._keymap.clear();
+      let it = entries[Symbol.iterator]();
+      for (let itv = it.next(); !itv.done; itv = it.next()) {
+        let e = new Entry(itv.value[0], itv.value[1]);
+        this._keymap.set(e.key, e);
+        if (!entry) {
+          this.oldest = e;
+        } else {
+          entry[NEWER] = e;
+          e[OLDER] = entry;
+        }
+        entry = e;
+        if (limit-- == 0) {
+          throw new Error("overflow");
+        }
+      }
+      this.newest = entry;
+      this.size = this._keymap.size;
+    }
+    get(key) {
+      var entry = this._keymap.get(key);
+      if (!entry)
+        return;
+      this._markEntryAsUsed(entry);
+      return entry.value;
+    }
+    set(key, value) {
+      var entry = this._keymap.get(key);
+      if (entry) {
+        entry.value = value;
+        this._markEntryAsUsed(entry);
+        return this;
+      }
+      this._keymap.set(key, entry = new Entry(key, value));
+      if (this.newest) {
+        this.newest[NEWER] = entry;
+        entry[OLDER] = this.newest;
+      } else {
+        this.oldest = entry;
+      }
+      this.newest = entry;
+      ++this.size;
+      if (this.size > this.limit) {
+        this.shift();
+      }
+      return this;
+    }
+    shift() {
+      var entry = this.oldest;
+      if (entry) {
+        if (this.oldest[NEWER]) {
+          this.oldest = this.oldest[NEWER];
+          this.oldest[OLDER] = void 0;
+        } else {
+          this.oldest = void 0;
+          this.newest = void 0;
+        }
+        entry[NEWER] = entry[OLDER] = void 0;
+        this._keymap.delete(entry.key);
+        --this.size;
+        return [entry.key, entry.value];
+      }
+    }
+    find(key) {
+      let e = this._keymap.get(key);
+      return e ? e.value : void 0;
+    }
+    has(key) {
+      return this._keymap.has(key);
+    }
+    delete(key) {
+      var entry = this._keymap.get(key);
+      if (!entry)
+        return;
+      this._keymap.delete(entry.key);
+      if (entry[NEWER] && entry[OLDER]) {
+        entry[OLDER][NEWER] = entry[NEWER];
+        entry[NEWER][OLDER] = entry[OLDER];
+      } else if (entry[NEWER]) {
+        entry[NEWER][OLDER] = void 0;
+        this.oldest = entry[NEWER];
+      } else if (entry[OLDER]) {
+        entry[OLDER][NEWER] = void 0;
+        this.newest = entry[OLDER];
+      } else {
+        this.oldest = this.newest = void 0;
+      }
+      this.size--;
+      return entry.value;
+    }
+    clear() {
+      this.oldest = this.newest = void 0;
+      this.size = 0;
+      this._keymap.clear();
+    }
+    keys() {
+      return new KeyIterator(this.oldest);
+    }
+    values() {
+      return new ValueIterator(this.oldest);
+    }
+    entries() {
+      return this;
+    }
+    [Symbol.iterator]() {
+      return new EntryIterator(this.oldest);
+    }
+    forEach(fun, thisObj) {
+      if (typeof thisObj !== "object") {
+        thisObj = this;
+      }
+      let entry = this.oldest;
+      while (entry) {
+        fun.call(thisObj, entry.value, entry.key, this);
+        entry = entry[NEWER];
+      }
+    }
+    forEachWithBreak(fun) {
+      let entry = this.oldest;
+      let removedElements = 0;
+      while (entry) {
+        if (!fun.call(this, entry.value, entry.key, this)) {
+          break;
+        }
+        entry = this.oldest;
+        removedElements++;
+      }
+      return removedElements;
+    }
+    toJSON() {
+      var s = new Array(this.size), i = 0, entry = this.oldest;
+      while (entry) {
+        s[i++] = {key: entry.key, value: entry.value};
+        entry = entry[NEWER];
+      }
+      return s;
+    }
+    toString() {
+      var s = "", entry = this.oldest;
+      while (entry) {
+        s += String(entry.key) + ":" + entry.value;
+        entry = entry[NEWER];
+        if (entry) {
+          s += " < ";
+        }
+      }
+      return s;
+    }
+  }
+  exports2.LRUMap = LRUMap;
+  function Entry(key, value) {
+    this.key = key;
+    this.value = value;
+    this[NEWER] = void 0;
+    this[OLDER] = void 0;
+  }
+  function EntryIterator(oldestEntry) {
+    this.entry = oldestEntry;
+  }
+  EntryIterator.prototype[Symbol.iterator] = function() {
+    return this;
+  };
+  EntryIterator.prototype.next = function() {
+    let ent = this.entry;
+    if (ent) {
+      this.entry = ent[NEWER];
+      return {done: false, value: [ent.key, ent.value]};
+    } else {
+      return {done: true, value: void 0};
+    }
+  };
+  function KeyIterator(oldestEntry) {
+    this.entry = oldestEntry;
+  }
+  KeyIterator.prototype[Symbol.iterator] = function() {
+    return this;
+  };
+  KeyIterator.prototype.next = function() {
+    let ent = this.entry;
+    if (ent) {
+      this.entry = ent[NEWER];
+      return {done: false, value: ent.key};
+    } else {
+      return {done: true, value: void 0};
+    }
+  };
+  function ValueIterator(oldestEntry) {
+    this.entry = oldestEntry;
+  }
+  ValueIterator.prototype[Symbol.iterator] = function() {
+    return this;
+  };
+  ValueIterator.prototype.next = function() {
+    let ent = this.entry;
+    if (ent) {
+      this.entry = ent[NEWER];
+      return {done: false, value: ent.value};
+    } else {
+      return {done: true, value: void 0};
+    }
+  };
+});
 //# sourceMappingURL=lru.js.map
