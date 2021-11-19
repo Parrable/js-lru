@@ -2,8 +2,7 @@
 // $ node test.js
 // (Might work with other CommonJS-compatible environments)
 const assert = require('assert');
-//const LRUMap = require('./dist/lru').LRUMap;
-const LRUMap = require('./lru.js').LRUMap;
+const LRUMap = require('./dist/lru').LRUMap;
 const asserteq = assert.equal;
 const tests = {
 

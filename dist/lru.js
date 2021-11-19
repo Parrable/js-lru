@@ -19,6 +19,7 @@
       this.limit = limit;
       this.oldest = this.newest = void 0;
       this._keymap = new Map();
+      this.isProcessingForEachWithBreak = false;
       if (entries) {
         this.assign(entries);
         if (limit < 1) {
@@ -166,16 +167,21 @@
       }
     }
     forEachWithBreak(fun) {
+      if (this.isProcessingForEachWithBreak)
+        return 0;
+      this.isProcessingFunWithBreak = true;
       let entry = this.oldest;
-      let removedElements = 0;
+      let removedEntryCount = 0;
       while (entry) {
         if (!fun.call(this, entry.value, entry.key, this)) {
           break;
         }
+        this.delete(entry.key);
         entry = this.oldest;
-        removedElements++;
+        removedEntryCount++;
       }
-      return removedElements;
+      this.isProcessingForEachWithBreak = false;
+      return removedEntryCount;
     }
     toJSON() {
       var s = new Array(this.size), i = 0, entry = this.oldest;
