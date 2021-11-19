@@ -41,6 +41,7 @@
       this.limit = limit;
       this.oldest = this.newest = undefined;
       this._keymap = new Map();
+      this.isProcessingForEachWithBreak = false;
 
       if (entries) {
         this.assign(entries);
@@ -236,16 +237,20 @@
     }
 
     forEachWithBreak(fun) {
+      if (this.isProcessingForEachWithBreak) return 0;
+      this.isProcessingFunWithBreak = true;
       let entry = this.oldest;
-      let removedElements = 0;
+      let removedEntryCount = 0;
       while (entry) {
         if (!fun.call(this, entry.value, entry.key, this)) {
           break;
         }
+        this.delete(entry.key);
         entry = this.oldest;
-        removedElements++;
+        removedEntryCount++;
       }
-      return removedElements;
+      this.isProcessingForEachWithBreak = false;
+      return removedEntryCount;
     }
 
     /** Returns a JSON (array) representation */

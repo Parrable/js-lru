@@ -1,7 +1,7 @@
 {
   "name": "@parrable/lru_map",
   "version": "0.5.1",
-  "description": "Finite key-value map using the Least Recently Used (LRU) algorithm where the most recently used objects are keept in the map while less recently used items are evicted to make room for new ones.",
+  "description": "Finite key-value map using the Least Recently Used (LRU) algorithm where the most recently used objects are kept in the map while less recently used items are evicted to make room for new ones.",
   "main": "dist/lru.js",
   "types": "lru.d.ts",
   "typings": "lru.d.ts",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rsms/js-lru.git"
+    "url": "git+https://github.com/Parrable/js-lru.git"
   },
   "files": [
     "README.md",

@@ -8,4 +8,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `forEachWithBreak`, executes cb on oldest entry exits loop if cb returns a falsy value.
+- `forEachWithBreak`, synchronously executes cb on oldest entry exits loop if cb returns a falsy value.

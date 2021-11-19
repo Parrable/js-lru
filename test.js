@@ -2,7 +2,8 @@
 // $ node test.js
 // (Might work with other CommonJS-compatible environments)
 const assert = require('assert');
-const LRUMap = require('./dist/lru').LRUMap;
+//const LRUMap = require('./dist/lru').LRUMap;
+const LRUMap = require('./lru.js').LRUMap;
 const asserteq = assert.equal;
 const tests = {
 
@@ -269,19 +270,51 @@ set() {
   assert(kit.next().done);
 },
 
-forEachWithBreak() {
-  c = new LRUMap(4);
-  c.set('a', 1);
-  c.set('b', 1);
-  c.set('c', 0);
-  c.set('d', 0);
+['forEachWithBreak']() {
+  c = new LRUMap(4, [
+    ['a', 1],
+    ['b', 1],
+    ['c', 0],
+    ['d', 0,]
+  ]);
+ // c.set('a', 1);
+ // c.set('b', 1);
+ // c.set('c', 0);
+ // c.set('d', 0);
 
-  const fun = (value) => value === 1 ;
-
+  const fun = (value) => {
+    return value === 1
+  }
   const targetNbElements = c.forEachWithBreak(fun);
 
   asserteq(targetNbElements, 2);
+  asserteq(c.size, 2);
 },
+
+['forEachWithBreak sync test']() {
+  c = new LRUMap(4, [
+    ['a', 1],
+    ['b', 1],
+    ['c', 0],
+    ['d', 0,]
+  ]);
+ // c.set('a', 1);
+ // c.set('b', 1);
+ // c.set('c', 0);
+ // c.set('d', 0);
+
+  c.isProcessingForEachWithBreak = true;
+
+  const fun = (value) => {
+    return value === 1
+  }
+
+  const targetNbElements = c.forEachWithBreak(fun);
+
+  asserteq(targetNbElements, 0);
+  asserteq(c.size, 4);
+},
+
 
 toJSON() {
   let c = new LRUMap(4, [
