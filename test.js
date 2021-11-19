@@ -274,12 +274,8 @@ set() {
     ['a', 1],
     ['b', 1],
     ['c', 0],
-    ['d', 0,]
+    ['d', 0]
   ]);
- // c.set('a', 1);
- // c.set('b', 1);
- // c.set('c', 0);
- // c.set('d', 0);
 
   const fun = (value) => {
     return value === 1
@@ -290,17 +286,13 @@ set() {
   asserteq(c.size, 2);
 },
 
-['forEachWithBreak sync test']() {
+['forEachWithBreak sync']() {
   c = new LRUMap(4, [
     ['a', 1],
     ['b', 1],
     ['c', 0],
-    ['d', 0,]
+    ['d', 0]
   ]);
- // c.set('a', 1);
- // c.set('b', 1);
- // c.set('c', 0);
- // c.set('d', 0);
 
   c.isProcessingForEachWithBreak = true;
 
