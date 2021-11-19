@@ -157,6 +157,8 @@ export class LRUMap<K,V> {
   forEach(fun :(value :V, key :K, m :LRUMap<K,V>)=>void, thisArg? :any) : void;
 
   // Call `fun` for each entry, starting with the oldest entry. If `fun` returns a falsy value, exit the loop
+  // This can be used to prune the LRU map in reverse by some value such as age of entry
+  // Note this runs synchronously.  Calling it a second time while it is already running will exit without any action
   forEachWithBreak(fun :(value :V, key :K, m :LRUMap<K,V>)=>void) : number;
 
   // Returns an object suitable for JSON encoding
